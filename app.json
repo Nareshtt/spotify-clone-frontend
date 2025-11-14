@@ -9,9 +9,37 @@
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/logo.png"
     },
-    "plugins": ["expo-router"],
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/logo.png",
+          "resizeMode": "cover",
+          "backgroundColor": "#000000",
+          "enableFullScreenImage_legacy": true
+        }
+      ],
+      [
+        "expo-font",
+        {
+          "fonts": [
+            "./assets/fonts/Satoshi-Black.otf",
+            "./assets/fonts/Satoshi-BlackItalic.otf",
+            "./assets/fonts/Satoshi-Bold.otf",
+            "./assets/fonts/Satoshi-BoldItalic.otf",
+            "./assets/fonts/Satoshi-Italic.otf",
+            "./assets/fonts/Satoshi-Light.otf",
+            "./assets/fonts/Satoshi-LightItalic.otf",
+            "./assets/fonts/Satoshi-Medium.otf",
+            "./assets/fonts/Satoshi-MediumItalic.otf",
+            "./assets/fonts/Satoshi-Regular.otf"
+          ]
+        }
+      ]
+    ],
     "experiments": {
       "typedRoutes": true,
 
@@ -19,24 +47,20 @@
     },
 
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/logo.png",
 
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "dark",
 
-    "splash": {
-      "image": "./assets/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
-    },
     "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
-      }
+        "foregroundImage": "./assets/logo.png",
+        "backgroundColor": "#000000"
+      },
+      "usesCleartextTraffic": true
     }
   }
 }
