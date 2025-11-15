@@ -1,5 +1,5 @@
 import { View, Text, ScrollView, ActivityIndicator } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useState } from 'react';
 import Search from '@/components/Search';
 import { performSearch } from '@/utils/searchUtils';
@@ -11,6 +11,7 @@ const discover = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [hasSearched, setHasSearched] = useState(false);
+  const insets = useSafeAreaInsets();
 
   const handleSearchSubmit = async () => {
     if (!searchQuery.trim()) return;
@@ -49,7 +50,7 @@ const discover = () => {
   };
 
   return (
-    <SafeAreaView className="bg-bg-main h-full">
+    <View className="bg-bg-main h-full" style={{ paddingTop: insets.top }}>
       <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
         <Search
           icon="camera"
@@ -92,7 +93,7 @@ const discover = () => {
 
         <View style={{ height: 50 }} />
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 };
 

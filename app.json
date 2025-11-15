@@ -3,9 +3,11 @@
     "name": "juxtify",
     "slug": "juxtify",
     "version": "1.0.0",
-
     "scheme": "juxtify",
-    "platforms": ["ios", "android"],
+    "platforms": [
+      "ios",
+      "android"
+    ],
     "web": {
       "bundler": "metro",
       "output": "static",
@@ -38,20 +40,27 @@
             "./assets/fonts/Satoshi-Regular.otf"
           ]
         }
+      ],
+      "expo-sqlite",
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "Allow Juxtify to save songs and thumbnails.",
+          "savePhotosPermission": "Allow Juxtify to save songs and thumbnails.",
+          "isAccessMediaLocationEnabled": true
+        }
       ]
     ],
     "experiments": {
       "typedRoutes": true,
-
       "tsconfigPaths": true
     },
-
     "orientation": "portrait",
     "icon": "./assets/logo.png",
-
     "userInterfaceStyle": "dark",
-
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true
     },
@@ -60,7 +69,13 @@
         "foregroundImage": "./assets/logo.png",
         "backgroundColor": "#000000"
       },
-      "usesCleartextTraffic": true
+      "usesCleartextTraffic": true,
+      "permissions": [
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE",
+        "READ_MEDIA_AUDIO",
+        "READ_MEDIA_IMAGES"
+      ]
     }
   }
 }

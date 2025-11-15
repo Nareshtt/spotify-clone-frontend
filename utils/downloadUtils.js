@@ -1,11 +1,13 @@
 import {
-  downloadAsync,
+  createDownloadResumable,
   documentDirectory,
   getInfoAsync,
   readAsStringAsync,
+  EncodingType,
 } from 'expo-file-system/legacy';
+import { downloadAndStoreSong } from '../database/songStoring';
 
-export const downloadVideo = async (video) => {
+export const downloadVideo = async (video, onProgress) => {
   try {
     const fileName = `${video.title.replace(/[^a-zA-Z0-9]/g, '_')}.mp3`;
     const fileUri = `${documentDirectory}${fileName}`;
@@ -16,18 +18,33 @@ export const downloadVideo = async (video) => {
     const downloadUrl = `https://juxtify-music.loca.lt/api/download/?url=${encodeURIComponent(video.url)}`;
     console.log('🔗 Download URL:', downloadUrl);
 
-    const result = await downloadAsync(downloadUrl, fileUri, {
-      headers: {
-        Accept: 'audio/mpeg, audio/*, */*',
+    // Create progress callback
+    const callback = (downloadProgress) => {
+      const progress =
+        downloadProgress.totalBytesWritten / downloadProgress.totalBytesExpectedToWrite;
+      const progressPercent = progress * 100;
+      if (onProgress && !isNaN(progressPercent)) {
+        onProgress(progressPercent);
+      }
+    };
+
+    // Create download resumable with progress tracking
+    const downloadResumable = createDownloadResumable(
+      downloadUrl,
+      fileUri,
+      {
+        headers: {
+          Accept: 'audio/mpeg, audio/*, */*',
+        },
       },
-    });
+      callback
+    );
 
-    console.log('📊 Response status:', result.status);
-    console.log('📊 Response headers:', JSON.stringify(result.headers, null, 2));
+    // Start the download
+    const result = await downloadResumable.downloadAsync();
 
-    if (result.status !== 200) {
-      throw new Error(`Server returned status ${result.status}`);
-    }
+    console.log('📊 Download complete');
+    console.log('📊 Result:', result);
 
     if (result && result.uri) {
       // Verify the file exists and get its info
@@ -53,7 +70,7 @@ export const downloadVideo = async (video) => {
       // Read first few bytes to check file type
       try {
         const firstChars = await readAsStringAsync(result.uri, {
-          encoding: 'utf8',
+          encoding: EncodingType.UTF8,
           length: 50,
           position: 0,
         });
@@ -63,7 +80,7 @@ export const downloadVideo = async (video) => {
         if (
           firstChars.toLowerCase().includes('<!doctype') ||
           firstChars.toLowerCase().includes('<html') ||
-          firstChars.toLowerCase().includes('{\"error')
+          firstChars.toLowerCase().includes('{"error')
         ) {
           throw new Error('Backend returned error/HTML instead of audio. Check Django logs!');
         }
@@ -78,11 +95,17 @@ export const downloadVideo = async (video) => {
       console.log('✓ Download complete:', finalUri);
       console.log('✓ File size:', (fileInfo.size / 1024 / 1024).toFixed(2), 'MB');
 
+      // Store in database with thumbnail
+      const thumbnailUrl = video.thumbnail || 'https://via.placeholder.com/300';
+      const storeResult = await downloadAndStoreSong(video.title, thumbnailUrl, finalUri);
+      console.log('✓ Stored in database with ID:', storeResult.songId);
+
       return {
         success: true,
         uri: finalUri,
         fileName: fileName,
         size: fileInfo.size,
+        songId: storeResult.songId,
       };
     } else {
       throw new Error('Download failed - no result URI');

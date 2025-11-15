@@ -1,8 +1,7 @@
-import { View, Text, Image, Pressable, ScrollView } from 'react-native';
+import { View, Text, Image, Pressable } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
-import MaskedView from '@react-native-masked-view/masked-view';
 import icons from '@/constants/icons';
 
 const Player = () => {
@@ -22,8 +21,8 @@ const Player = () => {
         locations={[0, 1]}
         style={{ flex: 1, paddingTop: insets.top }}>
         <View className="mx-4 my-3 flex-row items-center justify-between">
-          <Pressable onPress={() => router.push('/(root)/(tabs)')}>
-            <icons.down width={36} height={36} />
+          <Pressable onPress={() => router.dismiss()}>
+            <icons.down />
           </Pressable>
           <View className="flex-1 flex-row items-center justify-center">
             <icons.album width={36} height={36} />
@@ -44,21 +43,18 @@ const Player = () => {
 
         <View className="mx-6 my-6">
           <View className="flex-row items-center justify-between">
-            <View className="flex-1" style={{ marginRight: 12 }}>
-              <MaskedView
-                maskElement={
-                  <LinearGradient
-                    colors={['black', 'black', 'transparent']}
-                    locations={[0, 0.8, 1]}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 0 }}
-                    style={{ flex: 1 }}
-                  />
-                }>
-                <Text className="font-satoshi-bold text-2xl text-fg-primary" numberOfLines={1}>
-                  {title}
-                </Text>
-              </MaskedView>
+            <View className="relative flex-1 overflow-hidden" style={{ marginRight: 12 }}>
+              <Text className="font-satoshi-bold text-2xl text-fg-primary" numberOfLines={1}>
+                {title}
+              </Text>
+              <LinearGradient
+                colors={['rgba(39, 43, 51, 0)', 'rgba(39, 43, 51, 1)']}
+                locations={[0.8, 1]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: 80 }}
+                pointerEvents="none"
+              />
             </View>
             <View className="relative left-3 flex flex-row gap-3">
               <Pressable>

@@ -1,11 +1,12 @@
 import { View, Text, ScrollView } from 'react-native';
 import { useState } from 'react';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Search from '@/components/Search';
 import Arranger from '@/components/library/Arranger';
 import Category from '@/components/library/Category';
 const library = () => {
   const [searchQuery, setSearchQuery] = useState('');
+  const insets = useSafeAreaInsets();
 
   const handleSearchSubmit = () => {
     // Add search logic here
@@ -16,7 +17,7 @@ const library = () => {
   };
 
   return (
-    <SafeAreaView className="bg-bg-main h-full">
+    <View className="bg-bg-main h-full" style={{ paddingTop: insets.top }}>
       <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
         <Search
           icon="addSimple"
@@ -94,7 +95,7 @@ const library = () => {
         />
         <View style={{ height: 50 }} />
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 };
 

@@ -1,9 +1,8 @@
-import { View, Text, ScrollView, Pressable } from 'react-native';
-import { useState } from 'react';
+import { View, Text, ScrollView, Pressable, FlatList } from 'react-native';
+import { useState, memo, useCallback } from 'react';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import Search from '@/components/Search';
 import SongThumbnail from '@/components/songs/SongThumbnail';
 import icons from '@/constants/icons';
@@ -14,7 +13,7 @@ const Songs = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [isShuffle, setIsShuffle] = useState(true);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [songs, setSongs] = useState(
+  const [songs] = useState(
     Array.from({ length: 20 }, (_, i) => ({
       id: i,
       title: `Song ${i + 1}`,
@@ -36,11 +35,25 @@ const Songs = () => {
 
   const insets = useSafeAreaInsets();
 
+  const renderSong = useCallback(
+    ({ item, index }) => (
+      <SongCard
+        key={item.id}
+        index={index}
+        thumbnail={item.thumbnail}
+        title={item.title}
+        playlistName={title}
+        songLocation=""
+      />
+    ),
+    [title]
+  );
+
   return (
-    <GestureHandlerRootView className="h-full">
+    <View className="h-full" style={{ backgroundColor: '#111111' }}>
       <View style={{ flex: 1, backgroundColor: '#111111' }}>
         <LinearGradient
-          colors={['rgba(59,79,182,0.47)', 'rgba(6,6,6,0.47)']}
+          colors={['rgba(116,128,188,0.47)', 'rgba(6,6,6,0.47)']}
           locations={[0, 1]}
           style={{ flex: 1, paddingTop: insets.top }}>
           <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
@@ -73,24 +86,22 @@ const Songs = () => {
                 </Pressable>
               </View>
             </View>
-            <View className="flex gap-2">
-              {songs.map((song, index) => (
-                <SongCard
-                  key={song.id}
-                  index={index}
-                  thumbnail={song.thumbnail}
-                  title={song.title}
-                  playlistName={title}
-                  songLocation=""
-                  onRemove={handleRemoveSong}
-                />
-              ))}
-            </View>
-            <View style={{ height: 100 }} />
+            <FlatList
+              data={songs}
+              renderItem={renderSong}
+              keyExtractor={(item) => item.id.toString()}
+              scrollEnabled={false}
+              removeClippedSubviews={true}
+              maxToRenderPerBatch={5}
+              initialNumToRender={10}
+              windowSize={3}
+              updateCellsBatchingPeriod={50}
+            />
+            <View style={{ height: 200 }} />
           </ScrollView>
         </LinearGradient>
       </View>
-    </GestureHandlerRootView>
+    </View>
   );
 };
 

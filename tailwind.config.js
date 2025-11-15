@@ -28,6 +28,7 @@ module.exports = {
           primary: '#111111',
           secondary: '#202020',
           main: '#060606',
+          player: '#333842',
         },
       },
     },

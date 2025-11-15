@@ -1,6 +1,7 @@
-import { View, Text, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, Image, TouchableOpacity } from 'react-native';
 import React, { useState } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
+import Svg, { Circle } from 'react-native-svg';
 import { getThumbnailUrl } from '@/utils/uiUtils';
 import { downloadVideo } from '@/utils/downloadUtils';
 import icons from '@/constants/icons';
@@ -8,24 +9,51 @@ import icons from '@/constants/icons';
 const YoutubeVideoHolder = ({ thumbnail, videoDuration, channelName, title, url }) => {
   const [isDownloaded, setIsDownloaded] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
+  const [progress, setProgress] = useState(0);
 
   const handleDownload = async () => {
-    if (isDownloading || isDownloaded) return;
+    console.log('\n\n👆 DOWNLOAD BUTTON CLICKED');
+    console.log('Video Title:', title);
+    console.log('Video URL:', url);
+    console.log('Thumbnail URL:', thumbnail);
+    
+    if (isDownloading || isDownloaded) {
+      console.log('⚠️ Download already in progress or completed');
+      return;
+    }
 
     setIsDownloading(true);
+    setProgress(0);
+    console.log('🚀 Starting download process...');
+    
     try {
-      await downloadVideo({ title, url });
+      await downloadVideo({ title, url, thumbnail }, (progressValue) => {
+        console.log('📈 Download progress:', progressValue.toFixed(2) + '%');
+        setProgress(progressValue);
+      });
+      setProgress(100);
       setIsDownloaded(true);
+      console.log('✅ Download completed successfully!');
     } catch (error) {
-      console.error('Download failed:', error);
+      console.error('❌ Download failed:', error);
+      console.error('Error details:', error.message);
       setIsDownloaded(false);
+      setProgress(0);
     } finally {
       setIsDownloading(false);
+      console.log('🏁 Download process finished\n\n');
     }
   };
 
+  // Calculate circle properties for progress
+  const size = 60;
+  const strokeWidth = 4;
+  const radius = (size - strokeWidth) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const strokeDashoffset = circumference - (progress / 100) * circumference;
+
   return (
-    <View className="bg-bg-secondary/50 mb-4 rounded-lg">
+    <View className="mb-4 rounded-lg bg-bg-secondary/50">
       <View className="relative">
         <Image
           source={{ uri: getThumbnailUrl(thumbnail) }}
@@ -57,7 +85,47 @@ const YoutubeVideoHolder = ({ thumbnail, videoDuration, channelName, title, url 
             alignItems: 'center',
           }}>
           {isDownloading ? (
-            <ActivityIndicator size="large" color="#FF6600" />
+            <View style={{ position: 'relative' }}>
+              <Svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+                {/* Background circle */}
+                <Circle
+                  cx={size / 2}
+                  cy={size / 2}
+                  r={radius}
+                  stroke="rgba(255, 255, 255, 0.2)"
+                  strokeWidth={strokeWidth}
+                  fill="rgba(0, 0, 0, 0.5)"
+                />
+                {/* Progress circle */}
+                <Circle
+                  cx={size / 2}
+                  cy={size / 2}
+                  r={radius}
+                  stroke="#FF6600"
+                  strokeWidth={strokeWidth}
+                  fill="none"
+                  strokeDasharray={circumference}
+                  strokeDashoffset={strokeDashoffset}
+                  strokeLinecap="round"
+                  transform={`rotate(-90 ${size / 2} ${size / 2})`}
+                />
+              </Svg>
+              {/* Percentage text in center */}
+              <View
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}>
+                <Text className="font-satoshi-bold text-xs text-fg-primary">
+                  {Math.round(progress)}%
+                </Text>
+              </View>
+            </View>
           ) : isDownloaded ? (
             <icons.checkFilled width={60} height={60} />
           ) : (
@@ -74,14 +142,14 @@ const YoutubeVideoHolder = ({ thumbnail, videoDuration, channelName, title, url 
             paddingVertical: 2,
             borderRadius: 4,
           }}>
-          <Text className="font-satoshi-bold text-fg-primary text-xs">{videoDuration}</Text>
+          <Text className="font-satoshi-bold text-xs text-fg-primary">{videoDuration}</Text>
         </View>
       </View>
       <View className="p-3">
-        <Text className="font-satoshi-bold text-fg-primary mb-1  text-xl" numberOfLines={2}>
+        <Text className="mb-1 font-satoshi-bold text-xl text-fg-primary" numberOfLines={2}>
           {title}
         </Text>
-        <Text className="font-satoshi-medium text-fg-secondary text-base" numberOfLines={1}>
+        <Text className="font-satoshi-medium text-base text-fg-secondary" numberOfLines={1}>
           {channelName}
         </Text>
       </View>

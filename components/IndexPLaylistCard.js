@@ -1,6 +1,6 @@
 import { View, Text, Image, Pressable } from 'react-native';
 import React, { useMemo } from 'react';
-import { Link } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 
 const IndexPlaylistCard = ({
@@ -49,9 +49,18 @@ const IndexPlaylistCard = ({
     };
   }, [title]);
 
+  const router = useRouter();
+
   return (
-    <Link href={{ pathname: '/(root)/(tabs)/songs', params: { title, hasImage: imageSource ? 'true' : 'false', songsNumber, duration } }} asChild>
-      <Pressable className="mx-2" style={{ width: 160 }}>
+    <Pressable
+      className="mx-2"
+      style={{ width: 160 }}
+      onPress={() =>
+        router.push({
+          pathname: '/(root)/(tabs)/songPage',
+          params: { title, hasImage: imageSource ? 'true' : 'false', songsNumber, duration },
+        })
+      }>
       {/* Card Stack Container */}
       <View className="relative overflow-hidden" style={{ width: 160, height: 180 }}>
         {/* Third card (most behind) - at the very top */}
@@ -121,7 +130,7 @@ const IndexPlaylistCard = ({
           {/* Title at bottom left */}
           <View className="absolute bottom-0 left-0 right-0 p-3">
             <Text
-              className="font-satoshi-bold text-fg-primary text-lg"
+              className="font-satoshi-bold text-lg text-fg-primary"
               style={{
                 textShadowColor: 'rgba(0, 0, 0, 0.75)',
                 textShadowOffset: { width: 0, height: 1 },
@@ -136,19 +145,18 @@ const IndexPlaylistCard = ({
       {/* Info Section Below Card */}
       <View className="mt-2">
         <View className="mb-1 flex-row items-center justify-between">
-          <Text className="font-satoshi-bold text-fg-primary text-sm" numberOfLines={1}>
+          <Text className="font-satoshi-bold text-sm text-fg-primary" numberOfLines={1}>
             {title}
           </Text>
-          <Text className="font-satoshi-medium text-primary ml-2 text-xs">{songsNumber}</Text>
+          <Text className="ml-2 font-satoshi-medium text-xs text-primary">{songsNumber}</Text>
         </View>
         {description && (
-          <Text className="font-satoshi-regular text-fg-secondary text-xs" numberOfLines={2}>
+          <Text className="font-satoshi-regular text-xs text-fg-secondary" numberOfLines={2}>
             {description}
           </Text>
         )}
       </View>
-      </Pressable>
-    </Link>
+    </Pressable>
   );
 };
 

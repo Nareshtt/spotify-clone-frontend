@@ -4,6 +4,8 @@ import { Stack } from 'expo-router';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 import { View } from 'react-native';
+import { PlayerProvider } from '../context/PlayerContext';
+import { initDatabase } from '../database/db';
 
 export default function Layout() {
   const [fontsLoaded] = useFonts({
@@ -20,6 +22,10 @@ export default function Layout() {
   });
 
   useEffect(() => {
+    initDatabase().then(() => console.log('✓ Database initialized'));
+  }, []);
+
+  useEffect(() => {
     if (fontsLoaded) {
       SplashScreen.hideAsync();
     }
@@ -30,8 +36,28 @@ export default function Layout() {
   }
 
   return (
-    <View className="bg-bg-main flex-1">
-      <Stack screenOptions={{ headerShown: false }} />
-    </View>
+    <PlayerProvider>
+      <View className="flex-1 bg-bg-main">
+        <Stack
+          screenOptions={{
+            headerShown: false,
+            animation: 'default',
+            gestureEnabled: true,
+          }}>
+          <Stack.Screen name="(root)/(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen
+            name="(root)/player"
+            options={{
+              headerShown: false,
+              presentation: 'transparentModal',
+              animation: 'slide_from_bottom',
+              gestureEnabled: true,
+              gestureDirection: 'vertical',
+              fullScreenGestureEnabled: true,
+            }}
+          />
+        </Stack>
+      </View>
+    </PlayerProvider>
   );
 }
