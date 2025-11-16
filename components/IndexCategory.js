@@ -7,7 +7,7 @@ const IndexCategory = ({ title, isActive, onPress }) => {
       style={{ paddingVertical: 8 }}
       onPress={onPress}>
       <Text
-        className={`text-fg-primary text-sm ${isActive ? 'font-satoshi-medium' : 'font-satoshi-light'}`}>
+        className={`text-sm text-fg-primary ${isActive ? 'font-satoshi-medium' : 'font-satoshi-light'}`}>
         {title}
       </Text>
     </TouchableOpacity>

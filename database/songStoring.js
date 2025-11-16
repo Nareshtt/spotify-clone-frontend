@@ -1,6 +1,8 @@
-import { documentDirectory, downloadAsync, copyAsync } from 'expo-file-system/legacy';
-import * as MediaLibrary from 'expo-media-library';
+import { cacheDirectory, downloadAsync, copyAsync, makeDirectoryAsync, getInfoAsync } from 'expo-file-system/legacy';
 import { addSong } from './songRepository';
+
+const THUMBNAIL_DIR = cacheDirectory + 'Juxtify/thumbnails/';
+const SONG_DIR = cacheDirectory + 'Juxtify/songs/';
 
 const generateUUID = () => {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
@@ -10,61 +12,45 @@ const generateUUID = () => {
   });
 };
 
-async function requestPermissions() {
-  const { status } = await MediaLibrary.requestPermissionsAsync();
-  if (status !== 'granted') {
-    throw new Error('Media library permission denied');
+async function ensureDirectoriesExist() {
+  const thumbInfo = await getInfoAsync(THUMBNAIL_DIR);
+  if (!thumbInfo.exists) {
+    await makeDirectoryAsync(THUMBNAIL_DIR, { intermediates: true });
   }
-  console.log('✓ Media library permission granted');
+  const songInfo = await getInfoAsync(SONG_DIR);
+  if (!songInfo.exists) {
+    await makeDirectoryAsync(SONG_DIR, { intermediates: true });
+  }
 }
 
-async function getOrCreateAlbum(albumName) {
-  const album = await MediaLibrary.getAlbumAsync(albumName);
-  if (album) {
-    console.log(`✓ Album "${albumName}" exists`);
-    return album;
-  }
-  console.log(`Creating album "${albumName}"...`);
-  const asset = await MediaLibrary.createAssetAsync(documentDirectory + 'temp.mp3');
-  const newAlbum = await MediaLibrary.createAlbumAsync(albumName, asset, false);
-  await MediaLibrary.deleteAssetsAsync([asset]);
-  console.log(`✓ Album "${albumName}" created`);
-  return newAlbum;
-}
-
-export async function downloadAndStoreSong(title, remoteThumbnailUrl, remoteSongUrl) {
+export async function downloadAndStoreSong(title, remoteThumbnailUrl, remoteSongUrl, duration = 0, videoId = null) {
   console.log('\n=== DOWNLOAD AND STORE SONG STARTED ===');
   console.log('Song Title:', title);
+  console.log('Duration:', duration, 'seconds');
+  console.log('Video ID:', videoId);
 
   try {
-    await requestPermissions();
+    await ensureDirectoriesExist();
 
-    const tempThumbnail = documentDirectory + `${generateUUID()}.jpg`;
-    const tempSong = documentDirectory + `${generateUUID()}.mp3`;
+    const thumbnailFilename = `${generateUUID()}.jpg`;
+    const songFilename = `${generateUUID()}.mp3`;
+    const localThumbnailUri = THUMBNAIL_DIR + thumbnailFilename;
+    const localSongUri = SONG_DIR + songFilename;
 
     console.log('\n📥 Downloading thumbnail...');
-    await downloadAsync(remoteThumbnailUrl, tempThumbnail);
+    await downloadAsync(remoteThumbnailUrl, localThumbnailUri);
     console.log('✓ Thumbnail downloaded');
 
-    console.log('\n📥 Copying song to temp...');
-    await copyAsync({ from: remoteSongUrl, to: tempSong });
+    console.log('\n📥 Copying song...');
+    await copyAsync({ from: remoteSongUrl, to: localSongUri });
     console.log('✓ Song copied');
 
-    console.log('\n💾 Saving to Music folder...');
-    const songAsset = await MediaLibrary.createAssetAsync(tempSong);
-    await MediaLibrary.createAlbumAsync('Juxtify', songAsset, false);
-    console.log('✓ Song saved to /Music/Juxtify/');
-    console.log('  Asset URI:', songAsset.uri);
-
-    const thumbnailAsset = await MediaLibrary.createAssetAsync(tempThumbnail);
-    console.log('✓ Thumbnail saved to gallery');
-
     console.log('\n💾 Storing in database...');
-    const songId = await addSong(title, thumbnailAsset.uri, songAsset.uri);
+    const songId = await addSong(title, localThumbnailUri, localSongUri, duration, videoId);
     console.log('✓ Stored in database with ID:', songId);
-    console.log('\n=== COMPLETED ===\n');
+    console.log('=== COMPLETED ===\n');
 
-    return { songId, localThumbnailUri: thumbnailAsset.uri, localSongUri: songAsset.uri };
+    return { songId, localThumbnailUri, localSongUri, duration };
   } catch (error) {
     console.error('\n❌ ERROR:', error.message);
     throw error;

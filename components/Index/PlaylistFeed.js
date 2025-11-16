@@ -1,14 +1,71 @@
 import { View, Text, ScrollView, TouchableOpacity, Modal, Pressable } from 'react-native';
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { BlurView } from 'expo-blur';
 import icons from '../../constants/icons';
 import IndexPlaylistCard from '../IndexPLaylistCard';
 import EditPlaylistCard from './EditPlaylistCard';
+import { getPlaylistById } from '../../database/playlistRepository';
+import { getCategoryById, updateCategoryPinStatus, updateCategoryHiddenStatus } from '../../database/categoryRepository';
+import { usePlayer } from '../../context/PlayerContext';
 
-const PlaylistFeed = ({ feedTitle }) => {
+const PlaylistFeed = ({ feedTitle, playlistIds = [], categoryId }) => {
   const [showModal, setShowModal] = useState(false);
   const [modalPosition, setModalPosition] = useState({ x: 0, y: 0 });
+  const [playlists, setPlaylists] = useState([]);
+  const [category, setCategory] = useState(null);
   const moreButtonRef = useRef(null);
+
+
+  const { triggerLibraryRefresh, libraryRefreshTrigger } = usePlayer();
+
+  useEffect(() => {
+    loadCategory();
+  }, [categoryId]);
+
+  useEffect(() => {
+    loadPlaylists();
+  }, [playlistIds, libraryRefreshTrigger]);
+
+  const loadCategory = async () => {
+    try {
+      const cat = await getCategoryById(categoryId);
+      setCategory(cat);
+    } catch (error) {
+      console.error('Error loading category:', error);
+    }
+  };
+
+  const loadPlaylists = async () => {
+    try {
+      const data = await Promise.all(
+        playlistIds.map(async (id) => {
+          const playlist = await getPlaylistById(id);
+          return playlist;
+        })
+      );
+      setPlaylists(data.filter(p => p !== null));
+    } catch (error) {
+      console.error('Error loading playlists:', error);
+    }
+  };
+
+  const handlePinToggle = async (isPinned) => {
+    try {
+      await updateCategoryPinStatus(categoryId, isPinned);
+      triggerLibraryRefresh();
+    } catch (error) {
+      console.error('Error updating pin status:', error);
+    }
+  };
+
+  const handleHideToggle = async (isHidden) => {
+    try {
+      await updateCategoryHiddenStatus(categoryId, isHidden);
+      triggerLibraryRefresh();
+    } catch (error) {
+      console.error('Error updating hidden status:', error);
+    }
+  };
 
   const handleMorePress = () => {
     moreButtonRef.current?.measure((fx, fy, width, height, px, py) => {
@@ -39,54 +96,28 @@ const PlaylistFeed = ({ feedTitle }) => {
                 top: modalPosition.y,
                 right: 16,
               }}>
-              <EditPlaylistCard onClose={() => setShowModal(false)} />
+              <EditPlaylistCard
+                isPinned={category?.isPinned}
+                isHidden={category?.isHidden}
+                onPinToggle={handlePinToggle}
+                onHideToggle={handleHideToggle}
+                onClose={() => setShowModal(false)}
+              />
             </View>
           </Pressable>
         </BlurView>
       </Modal>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mx-2">
-        <IndexPlaylistCard
-          imageSource={require('../../assets/image.png')}
-          title="Midnight Dreams"
-          description="Chill vibes for late night sessions"
-          songsNumber={42}
-        />
-        <IndexPlaylistCard
-          imageSource={require('../../assets/image.png')}
-          title="Summer Hits"
-          description="Top tracks for sunny days"
-          songsNumber={65}
-        />
-        <IndexPlaylistCard
-          imageSource={require('../../assets/image.png')}
-          title="Focus Flow"
-          description="Deep focus and productivity"
-          songsNumber={38}
-        />
-        <IndexPlaylistCard
-          imageSource={require('../../assets/image.png')}
-          title="Party Mix"
-          description="Get the party started"
-          songsNumber={80}
-        />
-        <IndexPlaylistCard
-          imageSource={require('../../assets/image.png')}
-          title="Acoustic Chill"
-          description="Relaxing acoustic melodies"
-          songsNumber={55}
-        />
-        <IndexPlaylistCard
-          imageSource={require('../../assets/image.png')}
-          title="90s Nostalgia"
-          description="Best hits from the 90s"
-          songsNumber={72}
-        />
-        <IndexPlaylistCard
-          imageSource={require('../../assets/image.png')}
-          title="Deep House"
-          description="Underground house beats"
-          songsNumber={48}
-        />
+        {playlists.map((playlist) => (
+          <IndexPlaylistCard
+            key={playlist.id}
+            playlistId={playlist.id}
+            imageSource={playlist.thumbnailLocation ? { uri: playlist.thumbnailLocation } : null}
+            title={playlist.title}
+            description={playlist.description}
+            songsNumber={playlist.songsQueue.length}
+          />
+        ))}
       </ScrollView>
     </View>
   );

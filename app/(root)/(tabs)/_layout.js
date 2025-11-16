@@ -90,7 +90,7 @@ export default function TabsLayout() {
           }}
         />
         <Tabs.Screen
-          name="songPage"
+          name="songPage/[id]"
           options={{
             href: null,
           }}

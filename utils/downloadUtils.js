@@ -95,9 +95,21 @@ export const downloadVideo = async (video, onProgress) => {
       console.log('✓ Download complete:', finalUri);
       console.log('✓ File size:', (fileInfo.size / 1024 / 1024).toFixed(2), 'MB');
 
-      // Store in database with thumbnail
+      // Parse duration from MM:SS to seconds
+      let durationInSeconds = 0;
+      if (video.duration) {
+        const parts = video.duration.split(':').map(Number);
+        if (parts.length === 2) {
+          durationInSeconds = parts[0] * 60 + parts[1];
+        } else if (parts.length === 3) {
+          durationInSeconds = parts[0] * 3600 + parts[1] * 60 + parts[2];
+        }
+      }
+      
+      // Store in database with thumbnail, duration, and videoId
       const thumbnailUrl = video.thumbnail || 'https://via.placeholder.com/300';
-      const storeResult = await downloadAndStoreSong(video.title, thumbnailUrl, finalUri);
+      const videoId = video.videoId || null;
+      const storeResult = await downloadAndStoreSong(video.title, thumbnailUrl, finalUri, durationInSeconds, videoId);
       console.log('✓ Stored in database with ID:', storeResult.songId);
 
       return {

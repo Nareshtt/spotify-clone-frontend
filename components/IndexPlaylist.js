@@ -1,15 +1,20 @@
 import { View, Text, TouchableOpacity, Image } from 'react-native';
+import { useRouter } from 'expo-router';
 
-const IndexPlaylist = ({ title }) => {
+const IndexPlaylist = ({ playlistId, title, thumbnail }) => {
+  const router = useRouter();
+
   return (
-    <TouchableOpacity className="bg-bg-secondary rounded-xl p-2">
+    <TouchableOpacity
+      className="rounded-xl bg-bg-secondary p-2"
+      onPress={() => router.push(`/(root)/(tabs)/songPage/${playlistId}`)}>
       <View className="flex flex-row items-center justify-start gap-2">
         <Image
-          source={require('../assets/image.png')}
+          source={thumbnail ? { uri: thumbnail } : require('../assets/image.png')}
           style={{ width: 42, height: 42 }}
           className="rounded-md"
         />
-        <Text className="font-satoshi-medium text-fg-primary/75 text-base" numberOfLines={1}>
+        <Text className="font-satoshi-medium text-base text-fg-primary/75" numberOfLines={1}>
           {title}{' '}
         </Text>
       </View>

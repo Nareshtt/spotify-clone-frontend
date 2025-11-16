@@ -2,8 +2,10 @@ import { View, Text, Image, Pressable } from 'react-native';
 import React, { useMemo } from 'react';
 import { Link, useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
+import PlaylistCoverPlaceholder from './PlaylistCoverPlaceholder';
 
 const IndexPlaylistCard = ({
+  playlistId,
   title = 'Discover Weekly',
   imageSource,
   description,
@@ -57,8 +59,7 @@ const IndexPlaylistCard = ({
       style={{ width: 160 }}
       onPress={() =>
         router.push({
-          pathname: '/(root)/(tabs)/songPage',
-          params: { title, hasImage: imageSource ? 'true' : 'false', songsNumber, duration },
+          pathname: `/(root)/(tabs)/songPage/${playlistId}`,
         })
       }>
       {/* Card Stack Container */}
@@ -70,7 +71,7 @@ const IndexPlaylistCard = ({
           end={{ x: 1, y: 1 }}
           className="absolute"
           style={{
-            top: 11,
+            top: 5,
             left: 16,
             right: 16,
             height: 160,
@@ -85,7 +86,7 @@ const IndexPlaylistCard = ({
           end={{ x: 1, y: 1 }}
           className="absolute"
           style={{
-            top: 15,
+            top: 12,
             left: 8,
             right: 8,
             height: 160,
@@ -101,7 +102,7 @@ const IndexPlaylistCard = ({
             left: 0,
             width: 160,
             height: 160,
-            backgroundColor: '#1a1a1a',
+            backgroundColor: '#333842',
             shadowColor: neonColors[0],
             shadowOffset: { width: 0, height: 4 },
             shadowOpacity: 0.3,
@@ -115,17 +116,13 @@ const IndexPlaylistCard = ({
                 source={imageSource}
                 style={{ width: '100%', height: '100%', position: 'absolute' }}
                 resizeMode="cover"
-                blurRadius={5}
               />
             </>
           ) : (
-            // If no image, show gradient
-            <LinearGradient
-              colors={[neonColors[0], neonColors[1]]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={{ flex: 1 }}
-            />
+            // If no image, show placeholder with icon
+            <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+              <PlaylistCoverPlaceholder size={160} />
+            </View>
           )}
           {/* Title at bottom left */}
           <View className="absolute bottom-0 left-0 right-0 p-3">

@@ -93,6 +93,7 @@ import user from '@/assets/icons/user.svg';
 import userFilled from '@/assets/icons/userFilled.svg';
 import video from '@/assets/icons/video.svg';
 import volume from '@/assets/icons/volume.svg';
+import song from '@/assets/icons/song.svg';
 
 export default {
   add,
@@ -178,6 +179,7 @@ export default {
   showFilled,
   shuffle,
   skip,
+  song,
   sort,
   syncedLyrics,
   syncedLyricsFilled,

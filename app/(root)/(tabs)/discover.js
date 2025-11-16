@@ -50,7 +50,7 @@ const discover = () => {
   };
 
   return (
-    <View className="bg-bg-main h-full" style={{ paddingTop: insets.top }}>
+    <View className="h-full bg-bg-main" style={{ paddingTop: insets.top }}>
       <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
         <Search
           icon="camera"
@@ -91,7 +91,7 @@ const discover = () => {
           </View>
         )}
 
-        <View style={{ height: 50 }} />
+        <View style={{ height: 200 }} />
       </ScrollView>
     </View>
   );

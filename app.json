@@ -41,15 +41,7 @@
           ]
         }
       ],
-      "expo-sqlite",
-      [
-        "expo-media-library",
-        {
-          "photosPermission": "Allow Juxtify to save songs and thumbnails.",
-          "savePhotosPermission": "Allow Juxtify to save songs and thumbnails.",
-          "isAccessMediaLocationEnabled": true
-        }
-      ]
+      "expo-sqlite"
     ],
     "experiments": {
       "typedRoutes": true,
@@ -62,7 +54,8 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.anonymous.juxtify"
     },
     "android": {
       "adaptiveIcon": {
@@ -70,12 +63,7 @@
         "backgroundColor": "#000000"
       },
       "usesCleartextTraffic": true,
-      "permissions": [
-        "READ_EXTERNAL_STORAGE",
-        "WRITE_EXTERNAL_STORAGE",
-        "READ_MEDIA_AUDIO",
-        "READ_MEDIA_IMAGES"
-      ]
+      "package": "com.anonymous.juxtify"
     }
   }
 }

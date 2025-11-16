@@ -1,10 +1,14 @@
 import { View, Text, Pressable, ScrollView } from 'react-native';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import icons from '../../constants/icons';
 import IndexPlaylistCard from '../IndexPLaylistCard';
 
-const Category = ({ title, playlists = [] }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
+const Category = ({ title, playlists = [], defaultExpanded = false }) => {
+  const [isExpanded, setIsExpanded] = useState(defaultExpanded);
+
+  useEffect(() => {
+    setIsExpanded(defaultExpanded);
+  }, [defaultExpanded]);
 
   return (
     <View>
@@ -23,6 +27,7 @@ const Category = ({ title, playlists = [] }) => {
           {playlists.map((playlist, index) => (
             <IndexPlaylistCard
               key={index}
+              playlistId={playlist.id}
               title={playlist.title}
               imageSource={playlist.imageSource}
               description={playlist.description}

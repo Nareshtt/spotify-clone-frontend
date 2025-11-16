@@ -11,6 +11,7 @@ const Search = ({
   onSubmitEditing,
   showClose = false,
   onClear,
+  bgColor = 'bg-bg-secondary/50',
 }) => {
   const IconComponent = icons[icon];
   const inputRef = useRef(null);
@@ -36,7 +37,7 @@ const Search = ({
 
   return (
     <View className="mx-3 my-3 flex flex-row items-center gap-3">
-      <View className="bg-bg-secondary/50 flex-1 flex-row items-center gap-3 rounded-lg px-2">
+      <View className={`flex-1 flex-row items-center gap-3 rounded-lg ${bgColor} px-2`}>
         <TextInput
           ref={inputRef}
           placeholder={placeholder}
@@ -46,7 +47,7 @@ const Search = ({
           onChangeText={onChangeText}
           onSubmitEditing={onSubmitEditing}
           returnKeyType="search"
-          className="font-satoshi-medium text-fg-primary flex-1 py-3 text-base"
+          className="flex-1 py-3 font-satoshi-medium text-base text-fg-primary"
         />
         <Pressable onPress={handleSearchIconPress}>
           {showClose ? (
@@ -57,7 +58,7 @@ const Search = ({
         </Pressable>
       </View>
       {IconComponent && (
-        <Pressable>
+        <Pressable onPress={onIconPress}>
           <IconComponent width={40} height={40} />
         </Pressable>
       )}

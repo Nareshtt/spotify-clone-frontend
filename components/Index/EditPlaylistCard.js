@@ -3,17 +3,14 @@ import { useState } from 'react';
 import BlurCard from '../BlurCard';
 import icons from '../../constants/icons';
 
-const EditPlaylistCard = ({ onClose }) => {
-  const [isPinned, setIsPinned] = useState(false);
-  const [isHidden, setIsHidden] = useState(false);
-
+const EditPlaylistCard = ({ isPinned = false, isHidden = false, onPinToggle, onHideToggle, onClose }) => {
   const handlePinToggle = () => {
-    setIsPinned(!isPinned);
+    if (onPinToggle) onPinToggle(!isPinned);
     onClose();
   };
 
   const handleHideToggle = () => {
-    setIsHidden(!isHidden);
+    if (onHideToggle) onHideToggle(!isHidden);
     onClose();
   };
 
